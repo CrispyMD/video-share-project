@@ -1,0 +1,10 @@
+C:\Users\mdond\VideoShareProject\video-share-project\Video Share Project\Video Share Project\bin\Debug\Video Share Project.exe.config
+C:\Users\mdond\VideoShareProject\video-share-project\Video Share Project\Video Share Project\bin\Debug\Video Share Project.exe
+C:\Users\mdond\VideoShareProject\video-share-project\Video Share Project\Video Share Project\bin\Debug\Video Share Project.pdb
+C:\Users\mdond\VideoShareProject\video-share-project\Video Share Project\Video Share Project\obj\Debug\Video Share Project.csproj.AssemblyReference.cache
+C:\Users\mdond\VideoShareProject\video-share-project\Video Share Project\Video Share Project\obj\Debug\Video_Share_Project.Form1.resources
+C:\Users\mdond\VideoShareProject\video-share-project\Video Share Project\Video Share Project\obj\Debug\Video_Share_Project.Properties.Resources.resources
+C:\Users\mdond\VideoShareProject\video-share-project\Video Share Project\Video Share Project\obj\Debug\Video Share Project.csproj.GenerateResource.cache
+C:\Users\mdond\VideoShareProject\video-share-project\Video Share Project\Video Share Project\obj\Debug\Video Share Project.csproj.CoreCompileInputs.cache
+C:\Users\mdond\VideoShareProject\video-share-project\Video Share Project\Video Share Project\obj\Debug\Video Share Project.exe
+C:\Users\mdond\VideoShareProject\video-share-project\Video Share Project\Video Share Project\obj\Debug\Video Share Project.pdb
