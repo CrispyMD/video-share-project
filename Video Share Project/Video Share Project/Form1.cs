@@ -48,10 +48,6 @@ namespace Video_Share_Project
             Client c = new Client();
         }
 
-        private void changeTextBoxText()
-        {
-
-        }
 
     }
 }

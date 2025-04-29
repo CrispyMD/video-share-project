@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
@@ -9,6 +10,8 @@ namespace Video_Share_Project
 {
     class Client
     {
+        public const int PORT = 8801;
+
         public Client() 
         {
             InitializeClient();
@@ -17,13 +20,12 @@ namespace Video_Share_Project
         protected void InitializeClient()
         {
             Console.WriteLine("client init");
-            TcpClient client = new TcpClient();
-            client.Connect("localhost", 8801);
-            NetworkStream stream = client.GetStream();
+            UdpClient client = new UdpClient(PORT);
+            IPEndPoint endPoint = new IPEndPoint(IPAddress.Any, PORT);
 
             byte[] message = Encoding.UTF8.GetBytes("popo");
-            stream.Write(message, offset: 0, message.Length);
-            Console.WriteLine("end client init");
+            //client.SendTo(message, endPoint);
+            client.Close();
         }
     }
 }
