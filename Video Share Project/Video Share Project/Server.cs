@@ -13,12 +13,13 @@ namespace Video_Share_Project
     class Server
     {
         public event EventHandler<string> GotMessageFromClient;
+        public const int CHECK_FOR_SERVER_SEND_PORT = 8001;
+        public const int CHECK_FOR_SERVER_RECIEVE_PORT = 8002;
         public const int PORT = 8801;
 
         public Server()
         {
             InitializeServer();
-
         }
 
         private async Task<bool> InitializeServer() //return depends on init success
@@ -55,6 +56,11 @@ namespace Video_Share_Project
             return true;
         }
 
+        private void AnswerDoesServerExistsMessages()
+        {
+
+        }
+
         
         private void HandleClient(IPEndPoint endpoint)
         {
@@ -75,68 +81,49 @@ namespace Video_Share_Project
                 GotMessageFromClient?.Invoke(this, data); //? ensures that if there are no subscribers invoke won't raise an error
             } */
         }
-        
+
 
 
         private async Task<bool> DoesServerExist()
         {
-            int broadcastTimeout = 1000;
-            UdpClient checksForServer = new UdpClient() { EnableBroadcast = true };
-            checksForServer.Client.ReceiveTimeout = broadcastTimeout;
-            IPEndPoint endpoint = new IPEndPoint(IPAddress.Any, PORT);
-            checksForServer.Client.Bind(endpoint);
-
-
-            byte[] broadcastMessage = Encoding.UTF8.GetBytes("bobo");
-            await checksForServer.SendAsync(broadcastMessage, broadcastMessage.Length, new IPEndPoint(IPAddress.Broadcast, PORT));
-
-            bool recieveMessagesAndReturnIfFoundServer()
+            return await Task.Run(() =>
             {
-                var startedTime = DateTime.Now;
-                var myIps = Dns.GetHostEntry(Dns.GetHostName()).AddressList; //each computer has multiple ips
+                int broadcastTimeout = 1000;
+                UdpClient checksForServer = new UdpClient() { EnableBroadcast = true };
+                checksForServer.Client.ReceiveTimeout = broadcastTimeout;
+                IPEndPoint endpoint = new IPEndPoint(IPAddress.Any, CHECK_FOR_SERVER_RECIEVE_PORT);
+                checksForServer.Client.Bind(endpoint);
 
 
-                try
+                byte[] broadcastMessage = Encoding.UTF8.GetBytes("popo");
+                checksForServer.Send(broadcastMessage, broadcastMessage.Length, new IPEndPoint(IPAddress.Broadcast, CHECK_FOR_SERVER_SEND_PORT));
+
+
+                bool recieveMessage()
                 {
-                    while((DateTime.Now - startedTime).TotalMilliseconds < broadcastTimeout)
+                    try
                     {
-                        bool ignoredOwnIP = false;
                         string message = Encoding.UTF8.GetString(checksForServer.Receive(ref endpoint));
-                        Console.WriteLine($"Got message {message} from {endpoint.Address}");
+                        Console.WriteLine(endpoint.Address);
+                        if (message.Equals("popo")) { return true; }
 
-                        foreach(IPAddress ip in myIps)
-                        {
-                            Console.WriteLine($"Comparing to local ip: {ip}");
-                            if(ip.ToString() == endpoint.Address.ToString())
-                            {//found own broadcast
-                                Console.WriteLine("Igonred own broadcast");
-                                ignoredOwnIP = true;
-                                break;
-                            }
-                            else
-                            {
-                                continue;
-                            }
-                        }
-                        if(!ignoredOwnIP)
-                        {
-                            Console.WriteLine($"Found server in IP {endpoint.Address}");
-                            return true;
-                        }
                     }
+                    catch (SocketException e)
+                    {
+                        Console.WriteLine("I am the server");
+                        return false;
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine("ERROR!!!!!!!!!!!!!! " + e.Message);
+                    }
+                    return true; //shouldn't get here
                 }
-                catch (SocketException e) //no one sent a message
-                {
-                    Console.WriteLine("I am the server");
-                    return false;
-                }
-                finally { checksForServer.Close(); }
 
-                throw new Exception("Error with DoesServerExist"); //should never get here
-            }
-
-            return recieveMessagesAndReturnIfFoundServer();
+                return Task.FromResult(recieveMessage());
+            });
         }
+
 
     }
 }
