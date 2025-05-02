@@ -28,24 +28,32 @@ namespace Video_Share_Project
                 Console.WriteLine("Found a server");
                 return false;
             }
-            
 
-            UdpClient listener = new UdpClient() {EnableBroadcast=true };
+            AnswerDoesServerExistsMessages();
+            CreateThreadsForClients();
+
+            
+            return true;
+        }
+
+
+
+        private void CreateThreadsForClients()
+        {
+            UdpClient listener = new UdpClient() { EnableBroadcast = true };
             IPEndPoint endpoint = new IPEndPoint(IPAddress.Any, PORT);
             listener.Client.Bind(new IPEndPoint(IPAddress.Any, PORT));
 
-            
             Thread server_recieving_clients_thread = new Thread(() =>
             {
+                Console.WriteLine("in da thread");
                 while (true)
                 {
-                    Console.WriteLine("in da thread");
-                    byte[] bytes = listener.Receive(ref endpoint); //'blocking' function
-                    Console.WriteLine($"Received broadcast from {endpoint} :");
-                    Console.WriteLine($" {Encoding.ASCII.GetString(bytes, 0, bytes.Length)}");
-
+                    string message = Encoding.UTF8.GetString(listener.Receive(ref endpoint)); //'blocking' function
+                    Console.WriteLine($"Received message from {endpoint} :");
+                    Console.WriteLine(message);
                     Thread client_thread = new Thread(() => HandleClient(endpoint));
-                    //() => HandleClient(client): call the thread on a function that does not get any parameters and just calls HandleClient(client)
+
                     client_thread.Start();
                 }
             });
@@ -53,33 +61,40 @@ namespace Video_Share_Project
             server_recieving_clients_thread.IsBackground = true;
             server_recieving_clients_thread.Start();
             Console.WriteLine("server running");
-            return true;
         }
+
+
 
         private void AnswerDoesServerExistsMessages()
         {
+            Thread answerDSEMessages = new Thread(() =>
+            {
+                UdpClient reciever = new UdpClient();
+                IPEndPoint endpoint = new IPEndPoint(IPAddress.Any, CHECK_FOR_SERVER_SEND_PORT);
+                reciever.Client.Bind(endpoint);
+                UdpClient sender = new UdpClient();
 
+                while (true)
+                {
+                    string message = Encoding.UTF8.GetString(reciever.Receive(ref endpoint));
+                    if(message.Equals(Messages.DoesServerExist.name()))
+                    {
+                        byte[] serverExists = Encoding.UTF8.GetBytes(Messages.ServerExists.name());
+                        sender.Send(serverExists, serverExists.Length, new IPEndPoint(endpoint.Address, CHECK_FOR_SERVER_RECIEVE_PORT));
+                    }
+                }
+            });
+            
+            answerDSEMessages.IsBackground = true;
+            answerDSEMessages.Start();
         }
+
+        
 
         
         private void HandleClient(IPEndPoint endpoint)
         {
-            /*
-            NetworkStream stream = client.GetStream();
-
-            byte[] buffer = new byte[4096];
-            int bytesRead;
-            string data = "";
-
-            while ((bytesRead = stream.Read(buffer, 0, buffer.Length)) != 0)
-            {
-                data = Encoding.UTF8.GetString(buffer, 0, bytesRead);
-                // Process received data
-                //byte[] response = Encoding.ASCII.GetBytes("Server response");
-                //stream.Write(response, offset:0, response.Length);
-                Console.WriteLine(data);
-                GotMessageFromClient?.Invoke(this, data); //? ensures that if there are no subscribers invoke won't raise an error
-            } */
+            
         }
 
 
@@ -88,15 +103,15 @@ namespace Video_Share_Project
         {
             return await Task.Run(() =>
             {
-                int broadcastTimeout = 1000;
+                const int broadcastTimeout = 1000;
                 UdpClient checksForServer = new UdpClient() { EnableBroadcast = true };
                 checksForServer.Client.ReceiveTimeout = broadcastTimeout;
-                IPEndPoint endpoint = new IPEndPoint(IPAddress.Any, CHECK_FOR_SERVER_RECIEVE_PORT);
+                IPEndPoint endpoint = new IPEndPoint(IPAddress.Any, CHECK_FOR_SERVER_SEND_PORT);
                 checksForServer.Client.Bind(endpoint);
 
 
-                byte[] broadcastMessage = Encoding.UTF8.GetBytes("popo");
-                checksForServer.Send(broadcastMessage, broadcastMessage.Length, new IPEndPoint(IPAddress.Broadcast, CHECK_FOR_SERVER_SEND_PORT));
+                byte[] broadcastMessage = Encoding.UTF8.GetBytes(Messages.DoesServerExist.name());
+                checksForServer.Send(broadcastMessage, broadcastMessage.Length, new IPEndPoint(IPAddress.Broadcast, CHECK_FOR_SERVER_RECIEVE_PORT));
 
 
                 bool recieveMessage()
@@ -105,7 +120,7 @@ namespace Video_Share_Project
                     {
                         string message = Encoding.UTF8.GetString(checksForServer.Receive(ref endpoint));
                         Console.WriteLine(endpoint.Address);
-                        if (message.Equals("popo")) { return true; }
+                        if (message.Equals(Messages.ServerExists.name())) { return true; }
 
                     }
                     catch (SocketException e)
@@ -116,6 +131,10 @@ namespace Video_Share_Project
                     catch (Exception e)
                     {
                         Console.WriteLine("ERROR!!!!!!!!!!!!!! " + e.Message);
+                    }
+                    finally
+                    {
+                        checksForServer.Close();
                     }
                     return true; //shouldn't get here
                 }
