@@ -30,7 +30,7 @@ namespace Video_Share_Project
             }
 
             AnswerDoesServerExistsMessages();
-            CreateThreadsForClients();
+            //CreateThreadsForClients();
 
             
             return true;
@@ -80,7 +80,7 @@ namespace Video_Share_Project
                     if(message.Equals(Messages.DoesServerExist.name()))
                     {
                         byte[] serverExists = Encoding.UTF8.GetBytes(Messages.ServerExists.name());
-                        sender.Send(serverExists, serverExists.Length, new IPEndPoint(endpoint.Address, CHECK_FOR_SERVER_RECIEVE_PORT));
+                        sender.Send(serverExists, serverExists.Length, new IPEndPoint(endpoint.Address, CHECK_FOR_SERVER_SEND_PORT));
                     }
                 }
             });
@@ -106,13 +106,11 @@ namespace Video_Share_Project
                 const int broadcastTimeout = 1000;
                 UdpClient checksForServer = new UdpClient() { EnableBroadcast = true };
                 checksForServer.Client.ReceiveTimeout = broadcastTimeout;
-                IPEndPoint endpoint = new IPEndPoint(IPAddress.Any, CHECK_FOR_SERVER_SEND_PORT);
-                checksForServer.Client.Bind(endpoint);
+                IPEndPoint endpoint = new IPEndPoint(IPAddress.Any, 0);
 
 
                 byte[] broadcastMessage = Encoding.UTF8.GetBytes(Messages.DoesServerExist.name());
-                checksForServer.Send(broadcastMessage, broadcastMessage.Length, new IPEndPoint(IPAddress.Broadcast, CHECK_FOR_SERVER_RECIEVE_PORT));
-
+                checksForServer.Send(broadcastMessage, broadcastMessage.Length, new IPEndPoint(IPAddress.Broadcast, CHECK_FOR_SERVER_SEND_PORT));
 
                 bool recieveMessage()
                 {
@@ -120,22 +118,24 @@ namespace Video_Share_Project
                     {
                         string message = Encoding.UTF8.GetString(checksForServer.Receive(ref endpoint));
                         Console.WriteLine(endpoint.Address);
-                        if (message.Equals(Messages.ServerExists.name())) { return true; }
+                        if (message.Equals(Messages.ServerExists.name()))
+                        {
+                            checksForServer.Close();
+                            return true;
+                        }
 
                     }
                     catch (SocketException e)
                     {
                         Console.WriteLine("I am the server");
+                        checksForServer.Close();
                         return false;
                     }
                     catch (Exception e)
                     {
                         Console.WriteLine("ERROR!!!!!!!!!!!!!! " + e.Message);
                     }
-                    finally
-                    {
-                        checksForServer.Close();
-                    }
+
                     return true; //shouldn't get here
                 }
 
