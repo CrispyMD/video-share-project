@@ -14,8 +14,8 @@ namespace Video_Share_Project
     {
         public event EventHandler<string> GotMessageFromClient;
         public const int CHECK_FOR_SERVER_SEND_PORT = 8001;
-        public const int CHECK_FOR_SERVER_RECIEVE_PORT = 8002;
-        public const int PORT = 8801;
+        //public const int CHECK_FOR_SERVER_RECIEVE_PORT = 8002;
+        //public const int PORT = 8801;
 
         public Server()
         {
@@ -38,7 +38,7 @@ namespace Video_Share_Project
 
 
 
-        private void CreateThreadsForClients()
+        /*private void CreateThreadsForClients()
         {
             UdpClient listener = new UdpClient() { EnableBroadcast = true };
             IPEndPoint endpoint = new IPEndPoint(IPAddress.Any, PORT);
@@ -61,7 +61,7 @@ namespace Video_Share_Project
             server_recieving_clients_thread.IsBackground = true;
             server_recieving_clients_thread.Start();
             Console.WriteLine("server running");
-        }
+        }*/
 
 
 
@@ -80,7 +80,7 @@ namespace Video_Share_Project
                     if(message.Equals(Messages.DoesServerExist.name()))
                     {
                         byte[] serverExists = Encoding.UTF8.GetBytes(Messages.ServerExists.name());
-                        sender.Send(serverExists, serverExists.Length, new IPEndPoint(endpoint.Address, CHECK_FOR_SERVER_SEND_PORT));
+                        sender.Send(serverExists, serverExists.Length, endpoint);
                     }
                 }
             });
@@ -142,7 +142,6 @@ namespace Video_Share_Project
                 return Task.FromResult(recieveMessage());
             });
         }
-
 
     }
 }
