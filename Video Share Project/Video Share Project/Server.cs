@@ -6,6 +6,7 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 
 
 namespace Video_Share_Project
@@ -14,26 +15,59 @@ namespace Video_Share_Project
     {
         public event EventHandler<string> GotMessageFromClient;
         public const int CHECK_FOR_SERVER_SEND_PORT = 8001;
-        //public const int CHECK_FOR_SERVER_RECIEVE_PORT = 8002;
-        //public const int PORT = 8801;
+        public const int DATA_PORT = 8801;
+        public System.Windows.Forms.Button serverButton;
 
-        public Server()
+        public Server(System.Windows.Forms.Button serverButton)
         {
-            InitializeServer();
+            this.serverButton = serverButton;
+            Console.WriteLine("skib");
+            Task.Run(() => InitializeServer());
+            Console.WriteLine("idi");
         }
+
+        private void setServerButtonEnabled(bool state) { serverButton.Invoke(new MethodInvoker(() => serverButton.Enabled = state)); }
 
         private async Task<bool> InitializeServer() //return depends on init success
         {
+            setServerButtonEnabled(false);
             if (await DoesServerExist()) {
                 Console.WriteLine("Found a server");
+                setServerButtonEnabled(true);
                 return false;
             }
 
             AnswerDoesServerExistsMessages();
             //CreateThreadsForClients();
 
-            
+            setServerButtonEnabled(true);
             return true;
+        }
+
+
+        private void AnswerDoesServerExistsMessages()
+        {
+            Thread answerDSEMessages = new Thread(() =>
+            {
+                UdpClient reciever = new UdpClient();
+                IPEndPoint endpoint = new IPEndPoint(IPAddress.Any, CHECK_FOR_SERVER_SEND_PORT);
+                reciever.Client.Bind(endpoint);
+                UdpClient sender = new UdpClient();
+
+                while (true)
+                {
+                    string message = Encoding.UTF8.GetString(reciever.Receive(ref endpoint));
+                    GotMessageFromClient.Invoke(endpoint, message);
+                    if (message.Equals(Messages.DoesServerExist.name()))
+                    {
+                        byte[] serverExists = Encoding.UTF8.GetBytes(Messages.ServerExists.name());
+                        sender.Send(serverExists, serverExists.Length, endpoint);
+                    }
+                }
+            });
+
+            answerDSEMessages.IsBackground = true;
+            answerDSEMessages.Start();
         }
 
 
@@ -65,33 +99,8 @@ namespace Video_Share_Project
 
 
 
-        private void AnswerDoesServerExistsMessages()
-        {
-            Thread answerDSEMessages = new Thread(() =>
-            {
-                UdpClient reciever = new UdpClient();
-                IPEndPoint endpoint = new IPEndPoint(IPAddress.Any, CHECK_FOR_SERVER_SEND_PORT);
-                reciever.Client.Bind(endpoint);
-                UdpClient sender = new UdpClient();
 
-                while (true)
-                {
-                    string message = Encoding.UTF8.GetString(reciever.Receive(ref endpoint));
-                    if(message.Equals(Messages.DoesServerExist.name()))
-                    {
-                        byte[] serverExists = Encoding.UTF8.GetBytes(Messages.ServerExists.name());
-                        sender.Send(serverExists, serverExists.Length, endpoint);
-                    }
-                }
-            });
-            
-            answerDSEMessages.IsBackground = true;
-            answerDSEMessages.Start();
-        }
 
-        
-
-        
         private void HandleClient(IPEndPoint endpoint)
         {
             

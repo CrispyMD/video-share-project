@@ -12,6 +12,8 @@ namespace Video_Share_Project
 {
     public partial class Form1 : Form
     {
+        int x = 0;
+
         public Form1()
         {
             InitializeComponent();
@@ -23,21 +25,21 @@ namespace Video_Share_Project
 
         private void serverButton_Click(object sender, EventArgs e)
         {
-            Server server = new Server();
+            
+            Server server = new Server(serverButton);
+            
+            
+
             EventHandler<string> onGotMessageChangeTextBox = (messageSender, text) =>
             {
                 //method is called on the handleClient thread, so InvokeRequired is required
                 if (textBox1.InvokeRequired)
                 {
-                    textBox1.Invoke(new Action<string>(t => textBox1.Text = t), args:text);
+                    textBox1.Invoke(new Action<string>(t => textBox1.Text = (t + (++x).ToString())), args: text);
                     //.Invoke: on the control's thread...
                     //Action is a way of writing a method with no return type
                 }
-                else
-                {
-                    textBox1.Text = text;
-                }
-                
+
             };
 
             server.GotMessageFromClient += onGotMessageChangeTextBox;
