@@ -11,6 +11,7 @@ namespace Video_Share_Project
     {
         DoesServerExist,
         ServerExists,
+        AcceptClient,
     }
 
     public static class MessagesMethods
@@ -23,6 +24,8 @@ namespace Video_Share_Project
                     return "DoesServerExist";
                 case Messages.ServerExists:
                     return "ServerExists";
+                case Messages.AcceptClient:
+                    return "AcceptClient";
                 default:
                     return "INVALID";
             }

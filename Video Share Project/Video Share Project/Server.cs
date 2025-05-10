@@ -14,7 +14,7 @@ namespace Video_Share_Project
     class Server
     {
         public event EventHandler<string> GotMessageFromClient;
-        public const int CHECK_FOR_SERVER_SEND_PORT = 8001;
+        public const int CONNECTION_PORT = 8001;
         public const int DATA_PORT = 8801;
         public System.Windows.Forms.Button serverButton;
 
@@ -38,7 +38,7 @@ namespace Video_Share_Project
             }
 
             AnswerDoesServerExistsMessages();
-            //CreateThreadsForClients();
+            CreateThreadsForClients();
 
             setServerButtonEnabled(true);
             return true;
@@ -50,7 +50,8 @@ namespace Video_Share_Project
             Thread answerDSEMessages = new Thread(() =>
             {
                 UdpClient reciever = new UdpClient();
-                IPEndPoint endpoint = new IPEndPoint(IPAddress.Any, CHECK_FOR_SERVER_SEND_PORT);
+                IPEndPoint endpoint = new IPEndPoint(IPAddress.Any, CONNECTION_PORT);
+                reciever.Client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true);
                 reciever.Client.Bind(endpoint);
                 UdpClient sender = new UdpClient();
 
@@ -72,11 +73,12 @@ namespace Video_Share_Project
 
 
 
-        /*private void CreateThreadsForClients()
+        private void CreateThreadsForClients()
         {
             UdpClient listener = new UdpClient() { EnableBroadcast = true };
-            IPEndPoint endpoint = new IPEndPoint(IPAddress.Any, PORT);
-            listener.Client.Bind(new IPEndPoint(IPAddress.Any, PORT));
+            IPEndPoint endpoint = new IPEndPoint(IPAddress.Any, CONNECTION_PORT);
+            listener.Client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true);
+            listener.Client.Bind(new IPEndPoint(IPAddress.Any, CONNECTION_PORT));
 
             Thread server_recieving_clients_thread = new Thread(() =>
             {
@@ -86,16 +88,19 @@ namespace Video_Share_Project
                     string message = Encoding.UTF8.GetString(listener.Receive(ref endpoint)); //'blocking' function
                     Console.WriteLine($"Received message from {endpoint} :");
                     Console.WriteLine(message);
-                    Thread client_thread = new Thread(() => HandleClient(endpoint));
-
-                    client_thread.Start();
+                    if(message.Equals(Messages.AcceptClient.name()))
+                    {
+                        Console.WriteLine("Connecting a client...");
+                        Thread client_thread = new Thread(() => HandleClient(endpoint));
+                        client_thread.Start();
+                    }
                 }
             });
 
             server_recieving_clients_thread.IsBackground = true;
             server_recieving_clients_thread.Start();
             Console.WriteLine("server running");
-        }*/
+        }
 
 
 
@@ -103,7 +108,7 @@ namespace Video_Share_Project
 
         private void HandleClient(IPEndPoint endpoint)
         {
-            
+            Console.WriteLine("HOLY MOLY");
         }
 
 
@@ -119,7 +124,7 @@ namespace Video_Share_Project
 
 
                 byte[] broadcastMessage = Encoding.UTF8.GetBytes(Messages.DoesServerExist.name());
-                checksForServer.Send(broadcastMessage, broadcastMessage.Length, new IPEndPoint(IPAddress.Broadcast, CHECK_FOR_SERVER_SEND_PORT));
+                checksForServer.Send(broadcastMessage, broadcastMessage.Length, new IPEndPoint(IPAddress.Broadcast, CONNECTION_PORT));
 
                 bool recieveMessage()
                 {

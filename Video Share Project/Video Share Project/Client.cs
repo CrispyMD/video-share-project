@@ -10,7 +10,7 @@ namespace Video_Share_Project
 {
     class Client
     {
-        public const int PORT = 8801;
+        public const int CONNECTION_PORT = 8001;
 
         public Client() 
         {
@@ -20,11 +20,11 @@ namespace Video_Share_Project
         protected void InitializeClient()
         {
             Console.WriteLine("client init");
-            UdpClient client = new UdpClient(PORT);
-            IPEndPoint endPoint = new IPEndPoint(IPAddress.Any, PORT);
+            UdpClient client = new UdpClient();
+            IPEndPoint endPoint = new IPEndPoint(IPAddress.Broadcast, CONNECTION_PORT);
 
-            byte[] message = Encoding.UTF8.GetBytes("popo");
-            //client.SendTo(message, endPoint);
+            byte[] message = Encoding.UTF8.GetBytes(Messages.AcceptClient.name());
+            client.Send(message, message.Length, endPoint);
             client.Close();
         }
     }
