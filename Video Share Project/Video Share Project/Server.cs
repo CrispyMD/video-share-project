@@ -76,7 +76,7 @@ namespace Video_Share_Project
         private void CreateThreadsForClients()
         {
             UdpClient listener = new UdpClient() { EnableBroadcast = true };
-            IPEndPoint endpoint = new IPEndPoint(IPAddress.Any, CONNECTION_PORT);
+            IPEndPoint endpoint = new IPEndPoint(IPAddress.Any, 0);
             listener.Client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true);
             listener.Client.Bind(new IPEndPoint(IPAddress.Any, CONNECTION_PORT));
 
@@ -91,6 +91,7 @@ namespace Video_Share_Project
                     if(message.Equals(Messages.AcceptClient.name()))
                     {
                         Console.WriteLine("Connecting a client...");
+                        IPEndPoint clientEndpoint = new IPEndPoint(endpoint.Address, endpoint.Port);
                         Thread client_thread = new Thread(() => HandleClient(endpoint));
                         client_thread.Start();
                     }
@@ -108,7 +109,15 @@ namespace Video_Share_Project
 
         private void HandleClient(IPEndPoint endpoint)
         {
-            Console.WriteLine("HOLY MOLY");
+            UdpClient udp = new UdpClient();
+            var message = Encoding.UTF8.GetBytes(Messages.ConnectionEstablished.name());
+            udp.Send(message, message.Length, endpoint);
+            //while (true)
+            //{
+            //    Console.WriteLine(endpoint);
+            //    var message = udp.Receive(ref endpoint);
+                
+            //}
         }
 
 
