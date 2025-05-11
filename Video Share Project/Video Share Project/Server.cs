@@ -31,7 +31,7 @@ namespace Video_Share_Project
         private async Task<bool> InitializeServer() //return depends on init success
         {
             setServerButtonEnabled(false);
-            if (await DoesServerExist()) {
+            if (await DoesServerExist() != null) {
                 Console.WriteLine("Found a server");
                 setServerButtonEnabled(true);
                 return false;
@@ -45,7 +45,7 @@ namespace Video_Share_Project
         }
 
 
-        private void AnswerDoesServerExistsMessages()
+        private void AnswerDoesServerExistsMessages() //udp
         {
             Thread answerDSEMessages = new Thread(() =>
             {
@@ -63,6 +63,7 @@ namespace Video_Share_Project
                     {
                         byte[] serverExists = Encoding.UTF8.GetBytes(Messages.ServerExists.name());
                         sender.Send(serverExists, serverExists.Length, endpoint);
+                        Console.WriteLine($"Rejected a server in endpoint {endpoint}");
                     }
                 }
             });
@@ -73,56 +74,88 @@ namespace Video_Share_Project
 
 
 
-        private void CreateThreadsForClients()
+        private void CreateThreadsForClients() //tcp
         {
-            UdpClient listener = new UdpClient() { EnableBroadcast = true };
-            IPEndPoint endpoint = new IPEndPoint(IPAddress.Any, 0);
-            listener.Client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true);
-            listener.Client.Bind(new IPEndPoint(IPAddress.Any, CONNECTION_PORT));
+            TcpListener listener = new TcpListener(IPAddress.Any, CONNECTION_PORT);
+            listener.Start();
+            Console.WriteLine("TCP Server listening...");
 
-            Thread server_recieving_clients_thread = new Thread(() =>
+            Thread createHandlingThreads = new Thread(() =>
             {
-                Console.WriteLine("in da thread");
                 while (true)
                 {
-                    string message = Encoding.UTF8.GetString(listener.Receive(ref endpoint)); //'blocking' function
-                    Console.WriteLine($"Received message from {endpoint} :");
-                    Console.WriteLine(message);
-                    if(message.Equals(Messages.AcceptClient.name()))
-                    {
-                        Console.WriteLine("Connecting a client...");
-                        IPEndPoint clientEndpoint = new IPEndPoint(endpoint.Address, endpoint.Port);
-                        Thread client_thread = new Thread(() => HandleClient(endpoint));
-                        client_thread.Start();
-                    }
-                }
+                    TcpClient client = listener.AcceptTcpClient();
+                    Thread handleClientThread = new Thread(() => HandleClient(client));
+                    handleClientThread.Start();
+                }       
             });
+            createHandlingThreads.IsBackground = true;
+            createHandlingThreads.Start();
 
-            server_recieving_clients_thread.IsBackground = true;
-            server_recieving_clients_thread.Start();
-            Console.WriteLine("server running");
-        }
+            
+            
 
+            //UdpClient listener = new UdpClient() { EnableBroadcast = true };
+            //IPEndPoint endpoint = new IPEndPoint(IPAddress.Any, 0);
+            //listener.Client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true);
+            //listener.Client.Bind(new IPEndPoint(IPAddress.Any, CONNECTION_PORT));
 
-
-
-
-        private void HandleClient(IPEndPoint endpoint)
-        {
-            UdpClient udp = new UdpClient();
-            var message = Encoding.UTF8.GetBytes(Messages.ConnectionEstablished.name());
-            udp.Send(message, message.Length, endpoint);
-            //while (true)
+            //Thread server_recieving_clients_thread = new Thread(() =>
             //{
-            //    Console.WriteLine(endpoint);
-            //    var message = udp.Receive(ref endpoint);
-                
-            //}
+            //    Console.WriteLine("in da thread");
+            //    while (true)
+            //    {
+            //        string message = Encoding.UTF8.GetString(listener.Receive(ref endpoint)); //'blocking' function
+            //        Console.WriteLine($"Received message from {endpoint} :");
+            //        Console.WriteLine(message);
+
+            //        if(message.Equals(Messages.AcceptClient.name()))
+            //        { //client sent via udp that he wants to create a tcp connection
+            //            Console.WriteLine("Connecting a client...");
+            //            IPEndPoint clientEndpoint = new IPEndPoint(endpoint.Address, endpoint.Port);
+            //            Thread client_thread = new Thread(() => HandleClient(endpoint));
+            //            client_thread.Start();
+            //        }
+            //    }
+            //});
+
+            //server_recieving_clients_thread.IsBackground = true;
+            //server_recieving_clients_thread.Start();
+            //Console.WriteLine("server running");
         }
 
 
 
-        private async Task<bool> DoesServerExist()
+
+
+        private void HandleClient(TcpClient client) //tcp
+        {
+            NetworkStream stream = client.GetStream();
+            byte[] successMessage = Encoding.UTF8.GetBytes(Messages.ConnectionEstablished.name());
+            stream.Write(successMessage, 0, successMessage.Length);
+            Console.WriteLine($"Sent message to client in endpoint {client.Client.RemoteEndPoint}");
+
+            //UdpClient udp = new UdpClient();
+            //var message = Encoding.UTF8.GetBytes(Messages.ConnectionEstablished.name());
+            //udp.Send(message, message.Length, endpoint);
+
+            //now expecting connection from the client
+
+
+
+
+            //TcpClient client = new TcpClient();
+            //client.Connect(endpoint);
+            //byte[] successMessage = Encoding.UTF8.GetBytes(Messages.ConnectionEstablished.name());
+
+            //var clientStream = client.GetStream();
+            //clientStream.Write(successMessage, 0, successMessage.Length);
+            //Console.WriteLine($"Sent message {successMessage} to endpoint {endpoint}");
+        }
+
+
+
+        public static async Task<IPAddress> DoesServerExist() //udp
         {
             return await Task.Run(() =>
             {
@@ -135,7 +168,7 @@ namespace Video_Share_Project
                 byte[] broadcastMessage = Encoding.UTF8.GetBytes(Messages.DoesServerExist.name());
                 checksForServer.Send(broadcastMessage, broadcastMessage.Length, new IPEndPoint(IPAddress.Broadcast, CONNECTION_PORT));
 
-                bool recieveMessage()
+                IPAddress recieveMessage()
                 {
                     try
                     {
@@ -144,7 +177,7 @@ namespace Video_Share_Project
                         if (message.Equals(Messages.ServerExists.name()))
                         {
                             checksForServer.Close();
-                            return true;
+                            return endpoint.Address;
                         }
 
                     }
@@ -152,14 +185,14 @@ namespace Video_Share_Project
                     {
                         Console.WriteLine("I am the server");
                         checksForServer.Close();
-                        return false;
+                        return null;
                     }
                     catch (Exception e)
                     {
                         Console.WriteLine("ERROR!!!!!!!!!!!!!! " + e.Message);
                     }
 
-                    return true; //shouldn't get here
+                    return endpoint.Address; //shouldn't get here
                 }
 
                 return Task.FromResult(recieveMessage());
