@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
+using System.Security.Policy;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -16,7 +18,9 @@ namespace Video_Share_Project
         public event EventHandler<string> GotMessageFromClient;
         public const int CONNECTION_PORT = 8001;
         public const int DATA_PORT = 8801;
+        public const int TCP_BUFFER_LENGTH = 256;
         public System.Windows.Forms.Button serverButton;
+        List<NetworkStream> clientsStreams = new List<NetworkStream>();
 
         public Server(System.Windows.Forms.Button serverButton)
         {
@@ -63,7 +67,7 @@ namespace Video_Share_Project
                     {
                         byte[] serverExists = Encoding.UTF8.GetBytes(Messages.ServerExists.name());
                         sender.Send(serverExists, serverExists.Length, endpoint);
-                        Console.WriteLine($"Rejected a server in endpoint {endpoint}");
+                        Console.WriteLine($"Answered DSE in endpoint {endpoint}");
                     }
                 }
             });
@@ -76,7 +80,7 @@ namespace Video_Share_Project
 
         private void CreateThreadsForClients() //tcp
         {
-            TcpListener listener = new TcpListener(IPAddress.Any, CONNECTION_PORT);
+            TcpListener listener = new TcpListener(IPAddress.Any, DATA_PORT);
             listener.Start();
             Console.WriteLine("TCP Server listening...");
 
@@ -87,41 +91,10 @@ namespace Video_Share_Project
                     TcpClient client = listener.AcceptTcpClient();
                     Thread handleClientThread = new Thread(() => HandleClient(client));
                     handleClientThread.Start();
-                }       
+                }
             });
             createHandlingThreads.IsBackground = true;
             createHandlingThreads.Start();
-
-            
-            
-
-            //UdpClient listener = new UdpClient() { EnableBroadcast = true };
-            //IPEndPoint endpoint = new IPEndPoint(IPAddress.Any, 0);
-            //listener.Client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true);
-            //listener.Client.Bind(new IPEndPoint(IPAddress.Any, CONNECTION_PORT));
-
-            //Thread server_recieving_clients_thread = new Thread(() =>
-            //{
-            //    Console.WriteLine("in da thread");
-            //    while (true)
-            //    {
-            //        string message = Encoding.UTF8.GetString(listener.Receive(ref endpoint)); //'blocking' function
-            //        Console.WriteLine($"Received message from {endpoint} :");
-            //        Console.WriteLine(message);
-
-            //        if(message.Equals(Messages.AcceptClient.name()))
-            //        { //client sent via udp that he wants to create a tcp connection
-            //            Console.WriteLine("Connecting a client...");
-            //            IPEndPoint clientEndpoint = new IPEndPoint(endpoint.Address, endpoint.Port);
-            //            Thread client_thread = new Thread(() => HandleClient(endpoint));
-            //            client_thread.Start();
-            //        }
-            //    }
-            //});
-
-            //server_recieving_clients_thread.IsBackground = true;
-            //server_recieving_clients_thread.Start();
-            //Console.WriteLine("server running");
         }
 
 
@@ -131,26 +104,41 @@ namespace Video_Share_Project
         private void HandleClient(TcpClient client) //tcp
         {
             NetworkStream stream = client.GetStream();
-            byte[] successMessage = Encoding.UTF8.GetBytes(Messages.ConnectionEstablished.name());
-            stream.Write(successMessage, 0, successMessage.Length);
+            sendMessage(Messages.ConnectionEstablished.name(), stream);
             Console.WriteLine($"Sent message to client in endpoint {client.Client.RemoteEndPoint}");
+            clientsStreams.Add(stream);
+            
 
-            //UdpClient udp = new UdpClient();
-            //var message = Encoding.UTF8.GetBytes(Messages.ConnectionEstablished.name());
-            //udp.Send(message, message.Length, endpoint);
+            while (true)
+            {
+                string message = getMessage(stream);
+                GotMessageFromClient.Invoke(client.Client.RemoteEndPoint, message);
+                Console.WriteLine($"Sending message {message}");
+                sendMessage(message);
+            }
 
-            //now expecting connection from the client
+        }
 
+        public void sendMessage(string message)
+        {
+            foreach(NetworkStream stream in clientsStreams)
+            {
+                sendMessage(message, stream);
+            }
+        }
 
+        public void sendMessage(string message, NetworkStream stream)
+        {
+            byte[] byteMessage = Encoding.UTF8.GetBytes(message);
+            stream.Write(byteMessage, 0, byteMessage.Length);
+        }
 
-
-            //TcpClient client = new TcpClient();
-            //client.Connect(endpoint);
-            //byte[] successMessage = Encoding.UTF8.GetBytes(Messages.ConnectionEstablished.name());
-
-            //var clientStream = client.GetStream();
-            //clientStream.Write(successMessage, 0, successMessage.Length);
-            //Console.WriteLine($"Sent message {successMessage} to endpoint {endpoint}");
+        public string getMessage(NetworkStream stream)
+        {
+            byte[] message = new byte[TCP_BUFFER_LENGTH];
+            int messageLength = stream.Read(message, 0, TCP_BUFFER_LENGTH);
+            Console.WriteLine($"Got message {Encoding.UTF8.GetString(message, 0, messageLength)}");
+            return Encoding.UTF8.GetString(message, 0, messageLength);
         }
 
 

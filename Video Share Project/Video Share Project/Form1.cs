@@ -27,9 +27,8 @@ namespace Video_Share_Project
         {
             
             Server server = new Server(serverButton);
+            server.sendMessage(textBox1.Text);
             
-            
-
             EventHandler<string> onGotMessageChangeTextBox = (messageSender, text) =>
             {
                 //method is called on the handleClient thread, so InvokeRequired is required
