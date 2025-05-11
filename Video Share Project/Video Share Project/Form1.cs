@@ -4,9 +4,12 @@ using System.ComponentModel;
 using System.Data;
 using System.Drawing;
 using System.Linq;
+using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using LibVLCSharp.Shared;
+
 
 namespace Video_Share_Project
 {
@@ -14,10 +17,32 @@ namespace Video_Share_Project
     {
         int x = 0;
 
+        public LibVLC libvlc;
+        public MediaPlayer mediaPlayer;
+        public bool fullscreen = false;
+        public bool playing = false;
+
+        
+
+
+
+
+
+
+
         public Form1()
         {
             InitializeComponent();
+            Core.Initialize(); //initializes libVLC package
+
+            this.KeyPreview = true;
+            //this.KeyDown += new KeyEventHandler(ShortcutEvent);
+            libvlc = new LibVLC();
+            mediaPlayer = new MediaPlayer(libvlc);
+            videoView.MediaPlayer = mediaPlayer;
+            mediaPlayer.Play(new Media(libvlc, new Uri("http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4")));
         }
+
         private void Form1_Load(object sender, EventArgs e)
         {
 
