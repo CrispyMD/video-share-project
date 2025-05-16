@@ -13,6 +13,7 @@ namespace Video_Share_Project
         ServerExists,
         AcceptClient,
         ConnectionEstablished,
+        StartingVideoBroadcast,
     }
 
     public static class MessagesMethods
@@ -29,6 +30,8 @@ namespace Video_Share_Project
                     return "AcceptClient";
                 case Messages.ConnectionEstablished:
                     return "ConnectionEstablished";
+                case Messages.StartingVideoBroadcast:
+                    return "StartingVideoBroadcast";
                 default:
                     return "INVALID";
             }

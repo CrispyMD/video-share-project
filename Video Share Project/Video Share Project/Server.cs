@@ -18,7 +18,7 @@ namespace Video_Share_Project
         public event EventHandler<string> GotMessageFromClient;
         public const int CONNECTION_PORT = 8001;
         public const int DATA_PORT = 8801;
-        public const int TCP_BUFFER_LENGTH = 256;
+        public const int TCP_BUFFER_LENGTH = 512 * 1024;
         public System.Windows.Forms.Button serverButton;
         List<NetworkStream> clientsStreams = new List<NetworkStream>();
 
@@ -30,7 +30,9 @@ namespace Video_Share_Project
             Console.WriteLine("idi");
         }
 
+
         private void setServerButtonEnabled(bool state) { serverButton.Invoke(new MethodInvoker(() => serverButton.Enabled = state)); }
+
 
         private async Task<bool> InitializeServer() //return depends on init success
         {
@@ -113,10 +115,21 @@ namespace Video_Share_Project
             {
                 string message = getMessage(stream);
                 GotMessageFromClient.Invoke(client.Client.RemoteEndPoint, message);
-                Console.WriteLine($"Sending message {message}");
-                sendMessage(message);
+                //Console.WriteLine($"Sending message {message}");
+                //sendMessage(message);
+                Console.WriteLine($"Server got message {message} from endpoint {client.Client.RemoteEndPoint}");
             }
 
+        }
+
+
+
+        public void sendMessage(byte[] message)
+        {
+            foreach(NetworkStream stream in clientsStreams)
+            {
+                sendMessage(message, stream);
+            }
         }
 
         public void sendMessage(string message)
@@ -133,6 +146,13 @@ namespace Video_Share_Project
             stream.Write(byteMessage, 0, byteMessage.Length);
         }
 
+        public void sendMessage(byte[] message, NetworkStream stream)
+        {
+            stream.Write(message, 0, message.Length);
+        }
+
+
+
         public string getMessage(NetworkStream stream)
         {
             byte[] message = new byte[TCP_BUFFER_LENGTH];
@@ -140,6 +160,8 @@ namespace Video_Share_Project
             Console.WriteLine($"Got message {Encoding.UTF8.GetString(message, 0, messageLength)}");
             return Encoding.UTF8.GetString(message, 0, messageLength);
         }
+
+
 
 
 
