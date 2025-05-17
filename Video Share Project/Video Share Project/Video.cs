@@ -6,6 +6,8 @@ using System.Text;
 using System.Threading.Tasks;
 using LibVLCSharp.Shared;
 using LibVLCSharp.WinForms;
+using System.Runtime.InteropServices;
+using System.IO;
 
 namespace Video_Share_Project
 {
@@ -18,6 +20,8 @@ namespace Video_Share_Project
         public bool playing = false;
         public VideoView videoView;
         private Media currentMedia;
+
+        public const int CHUNK_MAX_SIZE = 5 * 1024; //5KB
 
         public Video(VideoView view)
         {
@@ -57,6 +61,8 @@ namespace Video_Share_Project
 
         }
 
+
+
         private async Task PlayNextSegment()
         {
             await Task.Run(() =>
@@ -78,6 +84,40 @@ namespace Video_Share_Project
                 Console.WriteLine("idi");
 
             });
+        }
+
+
+        //Segment is a few second part of the video.
+        //Chunk will be sent in TCP, and is a part of the segment.
+        //Chunk < Segment < Video
+        public static List<byte[]> CreateChunksFromSegment(string path) 
+        {
+            if(! File.Exists(path))
+            {
+                throw new FileNotFoundException($"File {path} was not found");
+            }
+
+            List<byte[]> chunks = new List<byte[]>();
+
+            using (FileStream stream = new FileStream(path, FileMode.Open, FileAccess.Read))
+            {
+                long fileSize = stream.Length;
+                int numberOfChunks = (int) Math.Ceiling((double) fileSize / CHUNK_MAX_SIZE);
+
+                for(int i = 0; i < numberOfChunks; i++)
+                {
+                    long currentChunkSize = Math.Min(CHUNK_MAX_SIZE, fileSize - stream.Position);
+
+
+                    byte[] chunk = new byte[currentChunkSize];
+
+                    stream.Read(chunk, 0, (int) currentChunkSize);
+
+                    chunks.Add(chunk);
+                }
+            }
+
+            return chunks;
         }
     }
 }

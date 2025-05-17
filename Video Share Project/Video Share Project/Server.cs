@@ -9,6 +9,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement.ProgressBar;
 
 
 namespace Video_Share_Project
@@ -213,9 +214,119 @@ namespace Video_Share_Project
             //TODO: CREATE CHUNKS
             //Currently just sending chunks manually
 
-            List<byte[]> chunksList = new List<byte[]>();
-            chunksList.Add(
-            //List<byte[]> chunksList = Video.CreateChunks(path);
+            List<byte[]> chunksList = Video.CreateChunksFromSegment("C:\\Users\\mdond\\Downloads\\zerotofive.mp4");
+
+            for(int i = 0; i < chunksList.Count; i++)
+            {
+                byte[] chunk = chunksList[i];
+                byte[] message;
+                if (i == 0)
+                {
+                    byte[] prefix = Encoding.UTF8.GetBytes("START_OF_SEGMENT:");
+                    message = new byte[prefix.Length + chunk.Length];
+                    prefix.CopyTo(message, 0);
+                    chunk.CopyTo(message, prefix.Length);
+
+
+                    Console.WriteLine("******* ");
+                    PrintChunkAsAscii(message);
+                }
+                else if (i == chunksList.Count - 1)
+                {
+                    byte[] prefix = Encoding.UTF8.GetBytes("END_OF_SEGMENT:");
+                    message = new byte[prefix.Length + chunk.Length];
+                    prefix.CopyTo(message, 0);
+                    chunk.CopyTo(message, prefix.Length);
+                }
+                else
+                {
+                    message = chunk;
+                }
+
+                
+                sendMessage(message);
+            }
         }
+
+
+
+
+
+
+
+
+
+
+
+
+        public static void PrintChunkAsAscii(byte[] chunk, int maxBytes = 1000, char replacementChar = '.')
+        {
+            if (chunk == null || chunk.Length == 0)
+            {
+                Console.WriteLine("[Empty chunk]");
+                return;
+            }
+
+            int bytesToPrint = (maxBytes < 0 || maxBytes > chunk.Length) ? chunk.Length : maxBytes;
+
+            StringBuilder output = new StringBuilder();
+
+            // Print header
+            output.AppendLine($"ASCII representation of chunk (first {bytesToPrint} of {chunk.Length} bytes):");
+            output.AppendLine(new string('-', 80));
+
+            // Print bytes in rows of 16
+            for (int i = 0; i < bytesToPrint; i += 16)
+            {
+                // Add offset at the beginning of the line
+                output.Append($"{i:X8}: ");
+
+                StringBuilder asciiLine = new StringBuilder();
+
+                // Process 16 bytes per line
+                for (int j = 0; j < 16; j++)
+                {
+                    int index = i + j;
+
+                    if (index < bytesToPrint)
+                    {
+                        byte b = chunk[index];
+
+                        // Hex representation 
+                        output.Append($"{b:X2} ");
+
+                        // ASCII representation (printable characters only)
+                        if (b >= 32 && b <= 126) // Printable ASCII range
+                            asciiLine.Append((char)b);
+                        else
+                            asciiLine.Append(replacementChar);
+                    }
+                    else
+                    {
+                        // Padding for incomplete lines
+                        output.Append("   ");
+                    }
+
+                    // Add extra space in the middle
+                    if (j == 7)
+                        output.Append(" ");
+                }
+
+                // Append ASCII representation at the end of the line
+                output.Append(" | ");
+                output.AppendLine(asciiLine.ToString());
+            }
+
+            output.AppendLine(new string('-', 80));
+
+            // Show if there are more bytes
+            if (bytesToPrint < chunk.Length)
+            {
+                output.AppendLine($"... (showing {bytesToPrint} of {chunk.Length} bytes)");
+            }
+
+            Console.WriteLine(output.ToString());
+        }
+
     }
 }

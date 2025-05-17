@@ -865,3 +865,17 @@ C:\Users\mdond\VideoShareProject\video-share-project\Video Share Project\Video S
 C:\Users\mdond\VideoShareProject\video-share-project\Video Share Project\Video Share Project\bin\Debug\System.Numerics.Vectors.xml
 C:\Users\mdond\VideoShareProject\video-share-project\Video Share Project\Video Share Project\bin\Debug\System.Runtime.CompilerServices.Unsafe.xml
 C:\Users\mdond\VideoShareProject\video-share-project\Video Share Project\Video Share Project\obj\Debug\Video Sh.7C67707A.Up2Date
+C:\Users\mdond\VideoShareProject\video-share-project\Video Share Project\Video Share Project\bin\Debug\FFMpegCore.dll
+C:\Users\mdond\VideoShareProject\video-share-project\Video Share Project\Video Share Project\bin\Debug\Instances.dll
+C:\Users\mdond\VideoShareProject\video-share-project\Video Share Project\Video Share Project\bin\Debug\Microsoft.Bcl.AsyncInterfaces.dll
+C:\Users\mdond\VideoShareProject\video-share-project\Video Share Project\Video Share Project\bin\Debug\System.IO.Pipelines.dll
+C:\Users\mdond\VideoShareProject\video-share-project\Video Share Project\Video Share Project\bin\Debug\System.Text.Encodings.Web.dll
+C:\Users\mdond\VideoShareProject\video-share-project\Video Share Project\Video Share Project\bin\Debug\System.Text.Json.dll
+C:\Users\mdond\VideoShareProject\video-share-project\Video Share Project\Video Share Project\bin\Debug\System.Threading.Tasks.Extensions.dll
+C:\Users\mdond\VideoShareProject\video-share-project\Video Share Project\Video Share Project\bin\Debug\System.ValueTuple.dll
+C:\Users\mdond\VideoShareProject\video-share-project\Video Share Project\Video Share Project\bin\Debug\Microsoft.Bcl.AsyncInterfaces.xml
+C:\Users\mdond\VideoShareProject\video-share-project\Video Share Project\Video Share Project\bin\Debug\System.IO.Pipelines.xml
+C:\Users\mdond\VideoShareProject\video-share-project\Video Share Project\Video Share Project\bin\Debug\System.Text.Encodings.Web.xml
+C:\Users\mdond\VideoShareProject\video-share-project\Video Share Project\Video Share Project\bin\Debug\System.Text.Json.xml
+C:\Users\mdond\VideoShareProject\video-share-project\Video Share Project\Video Share Project\bin\Debug\System.Threading.Tasks.Extensions.xml
+C:\Users\mdond\VideoShareProject\video-share-project\Video Share Project\Video Share Project\bin\Debug\System.ValueTuple.xml
