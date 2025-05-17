@@ -101,8 +101,6 @@ namespace Video_Share_Project
 
 
 
-
-
         private void HandleClient(TcpClient client) //tcp
         {
             NetworkStream stream = client.GetStream();
@@ -163,8 +161,6 @@ namespace Video_Share_Project
 
 
 
-
-
         public static async Task<IPAddress> DoesServerExist() //udp
         {
             return await Task.Run(() =>
@@ -209,5 +205,17 @@ namespace Video_Share_Project
             });
         }
 
+
+
+
+        public void StartVideoBroadcast(Video video, string path)
+        {
+            //TODO: CREATE CHUNKS
+            //Currently just sending chunks manually
+
+            List<byte[]> chunksList = new List<byte[]>();
+            chunksList.Add(
+            //List<byte[]> chunksList = Video.CreateChunks(path);
+        }
     }
 }

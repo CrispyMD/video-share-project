@@ -22,8 +22,8 @@ namespace Video_Share_Project
         
         public const int BUFFER_LENGTH = 512 * 1024; //512KB
         private byte[] buffer;
-        private Server server;
-
+        private Server server = null;
+        private Video video;
         
 
 
@@ -33,7 +33,7 @@ namespace Video_Share_Project
             InitializeComponent();
             Core.Initialize(); //initializes libVLC package
 
-            Video video = new Video(videoView);
+            video = new Video(videoView);
 
         }
 
@@ -86,7 +86,14 @@ namespace Video_Share_Project
 
         private void Play_Click(object sender, EventArgs e) //only server must use this function
         {
-            using (FileStream stream = new FileStream("C:\\Users\\mdond\\Downloads\\sd.mp4", FileMode.Open, FileAccess.Read))
+            if(server ==  null)
+            {
+                return;
+            }
+
+            server.StartVideoBroadcast(video, "C:\\Users\\mdond\\Downloads\\sd.mp4");
+
+            /*using (FileStream stream = new FileStream("C:\\Users\\mdond\\Downloads\\sd.mp4", FileMode.Open, FileAccess.Read))
             {
                 buffer = new byte[BUFFER_LENGTH];
                 int bytesRead;
@@ -98,7 +105,7 @@ namespace Video_Share_Project
                     server.sendMessage(message);
                     Thread.Sleep(100); //TODO: FIX THIS!!!!!!!! THIS IS IN THE UI THREAD!!!!!!!!!!!!!!!!!!!!!!!
                 }
-            }
+            }*/
         }
     }
 }

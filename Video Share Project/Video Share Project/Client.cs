@@ -59,7 +59,7 @@ namespace Video_Share_Project
         
         private byte[] ReceiveMessages()
         {
-            SendMessage("popo");
+            //SendMessage("popo");
             Console.WriteLine("Started receiveing");
             byte[] buffer = new byte[TCP_BUFFER_LENGTH];
             int messageLength = stream.Read(buffer, 0, TCP_BUFFER_LENGTH);
@@ -80,7 +80,6 @@ namespace Video_Share_Project
             }
 
             //now expecting video broadcast
-
 
 
             using (FileStream stream = new FileStream("buffer.mp4", FileMode.Create, FileAccess.Write))
