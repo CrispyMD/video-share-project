@@ -19,15 +19,12 @@ namespace Video_Share_Project
     public partial class Form1 : Form
     {
         int x = 0;
-        public LibVLC libvlc;
-        public MediaPlayer mediaPlayer;
-        public bool fullscreen = false;
-        public bool playing = false;
+        
         public const int BUFFER_LENGTH = 512 * 1024; //512KB
         private byte[] buffer;
         private Server server;
 
-        private Media currentMedia;
+        
 
 
 
@@ -36,56 +33,11 @@ namespace Video_Share_Project
             InitializeComponent();
             Core.Initialize(); //initializes libVLC package
 
+            Video video = new Video(videoView);
 
-            libvlc = new LibVLC();
-            mediaPlayer = new MediaPlayer(libvlc);
-            videoView.MediaPlayer = mediaPlayer;
-
-            mediaPlayer.EndReached += EndReached;
-
-            mediaPlayer.EncounteredError += (s, e) =>
-            {
-                Console.WriteLine("VLC encountered an error!");
-            };
-
-            currentMedia = new Media(libvlc, "C:\\Users\\mdond\\Downloads\\zerotofive.mp4", FromType.FromPath);
-            mediaPlayer.Play(currentMedia);
-            //mediaPlayer.Play(new Media(libvlc, new Uri("http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4")));
         }
 
-        private void EndReached(object sender, EventArgs e)
-        {
-
-            Console.WriteLine("END REACHED");
-            Console.WriteLine($"InvokeRequired in EndReached: {InvokeRequired}");
-            if(InvokeRequired)
-            {
-                Invoke(new Action(async () => await PlayNextSegment()));
-            }
-            
-        }
-
-        private async Task PlayNextSegment()
-        {
-            await Task.Run(() =>
-            {
-                Console.WriteLine("skib");
-                Console.WriteLine($"InvokeRequired in PlayNextSegment: {InvokeRequired}");
-                currentMedia = new Media(libvlc, "C:\\Users\\mdond\\Downloads\\fivetoten.mp4", FromType.FromPath);
-                try
-                {
-                    Console.WriteLine("dsa");
-                    mediaPlayer.Media = currentMedia;
-                    Console.WriteLine("sdf");
-                    mediaPlayer.Play(currentMedia);
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine(ex.Message);
-                }
-                Console.WriteLine("idi");
-            });
-        }
+        
 
 
 
@@ -125,7 +77,7 @@ namespace Video_Share_Project
         {
             Client c = new Client();
             Thread.Sleep(100);
-            c.WaitForVideoBroadcastAndPlay(libvlc, mediaPlayer, videoView);
+            //c.WaitForVideoBroadcastAndPlay(libvlc, mediaPlayer, videoView);
             
         }
 
