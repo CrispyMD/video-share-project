@@ -43,11 +43,13 @@ namespace Video_Share_Project
 
 
             currentMedia = new Media(libvlc, "C:\\Users\\mdond\\Downloads\\zerotofive.mp4", FromType.FromPath);
-            mediaPlayer.Play(currentMedia);
             //mediaPlayer.Play(new Media(libvlc, new Uri("http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4")));
         }
 
-
+        public void PlayVideo()
+        {
+            mediaPlayer.Play(currentMedia);
+        }
 
         private void EndReached(object sender, EventArgs e)
         {

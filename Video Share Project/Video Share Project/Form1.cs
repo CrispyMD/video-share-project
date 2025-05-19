@@ -75,10 +75,9 @@ namespace Video_Share_Project
 
         private void clientButton_Click(object sender, EventArgs e)
         {
-            Client c = new Client();
-            Thread.Sleep(100);
-            //c.WaitForVideoBroadcastAndPlay(libvlc, mediaPlayer, videoView);
-            
+            Client client = new Client();
+            Thread.Sleep(100); //Required, to enable initialization to end in time
+            Task.Run(() => client.WaitForVideoBroadcastMessage(video));
         }
 
 
@@ -91,7 +90,9 @@ namespace Video_Share_Project
                 return;
             }
 
-            server.StartVideoBroadcast(video, "C:\\Users\\mdond\\Downloads\\sd.mp4");
+            video.PlayVideo();
+            server.sendMessage(Messages.StartingVideoBroadcast.name());
+            server.SendSegment(video, "C:\\Users\\mdond\\Downloads\\sd.mp4");
 
             /*using (FileStream stream = new FileStream("C:\\Users\\mdond\\Downloads\\sd.mp4", FileMode.Open, FileAccess.Read))
             {

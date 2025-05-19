@@ -26,9 +26,7 @@ namespace Video_Share_Project
         public Server(System.Windows.Forms.Button serverButton)
         {
             this.serverButton = serverButton;
-            Console.WriteLine("skib");
             Task.Run(() => InitializeServer());
-            Console.WriteLine("idi");
         }
 
 
@@ -209,13 +207,12 @@ namespace Video_Share_Project
 
 
 
-        public void StartVideoBroadcast(Video video, string path)
+        public void SendSegment(Video video, string path)
         {
-            //TODO: CREATE CHUNKS
-            //Currently just sending chunks manually
+            //TODO: CREATE SEGMENTS
+            //Currently just sending segments manually
 
             List<byte[]> chunksList = Video.CreateChunksFromSegment("C:\\Users\\mdond\\Downloads\\zerotofive.mp4");
-
             for(int i = 0; i < chunksList.Count; i++)
             {
                 byte[] chunk = chunksList[i];
@@ -229,7 +226,6 @@ namespace Video_Share_Project
 
 
                     Console.WriteLine("******* ");
-                    PrintChunkAsAscii(message);
                 }
                 else if (i == chunksList.Count - 1)
                 {
@@ -243,9 +239,10 @@ namespace Video_Share_Project
                     message = chunk;
                 }
 
-                
+                PrintChunkAsAscii(message);
                 sendMessage(message);
             }
+            Console.WriteLine(chunksList.Count);
         }
 
 
