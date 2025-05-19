@@ -3,6 +3,7 @@ using LibVLCSharp.WinForms;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.IO.Pipes;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
@@ -99,9 +100,13 @@ namespace Video_Share_Project
 
         private void ReceiveVideoBroadcast(Video video)
         {
-            Console.WriteLine("dawid");
-            using (FileStream fileStream = new FileStream("buffer.mp4", FileMode.Create, FileAccess.Write))
+            FileStream fileStream = null;
+            try
             {
+                Console.WriteLine("dawid");
+                fileStream = new FileStream("buffer.mp4", FileMode.Create, FileAccess.Write, FileShare.Read);
+                //TODO: CHANGE buffer.mp4 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
                 videoBuffer = new byte[BUFFER_LENGTH];
                 int bytesRead;
 
@@ -110,20 +115,20 @@ namespace Video_Share_Project
 
                 Console.WriteLine("About to read from stream");
 
-                while ((bytesRead = stream.Read(videoBuffer, 0, BUFFER_LENGTH)) > 0 && !foundLastChunk)
+                while (!foundLastChunk && (bytesRead = stream.Read(videoBuffer, 0, BUFFER_LENGTH)) > 0)
                 {
                     Console.WriteLine($"Read message from server!!!!!!!!");
                     Console.WriteLine(Encoding.UTF8.GetString(videoBuffer, 0, 30) + "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
 
                     int writingOffset = 0, writingLength = bytesRead;
 
-                    if (bytesRead >= 17 && Encoding.UTF8.GetString(videoBuffer, 0, 17).Equals("START_OF_SEGMENT:") && ! foundFirstChunk) //string length is 17
+                    if (bytesRead >= 17 && Encoding.UTF8.GetString(videoBuffer, 0, 17).Equals("START_OF_SEGMENT:") && !foundFirstChunk) //string length is 17
                     {
                         foundFirstChunk = true;
                         writingOffset = 17;
                         writingLength -= 17;
                     }
-                    else if(bytesRead >= 15 && Encoding.UTF8.GetString(videoBuffer, 0, 15).Equals("END_OF_SEGMENT:") && foundFirstChunk)
+                    else if (bytesRead >= 15 && Encoding.UTF8.GetString(videoBuffer, 0, 15).Equals("END_OF_SEGMENT:") && foundFirstChunk)
                     {
                         foundLastChunk = true;
                         writingOffset = 15;
@@ -133,32 +138,55 @@ namespace Video_Share_Project
                     if (writingLength > 0 && foundFirstChunk)
                     {
                         fileStream.Write(videoBuffer, writingOffset, writingLength); //writing data to the stream
+                        fileStream.Flush(); //writing data to file (to memory)
                     }
-
-                    fileStream.Flush(); //writing data to file (to memory)
-
-                    
                 }
 
+                fileStream.Close();
+                fileStream = null; //close the stream
 
-                ////TODO: PUT THIS SOMEWHERE ELSE
-                //if (!startedVideo && stream.Length > 1024 * 1024) //waiting for 1MB of data before starting the video
-                //{
-                InitiateVideo(video);
-                //}
+                if(foundFirstChunk && foundLastChunk)
+                {
+                    Console.WriteLine("Just before Initialize video!!!");
+                    InitiateVideo(video);
+                }
+                else
+                {
+                    Console.WriteLine("Received incomplete segment");
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+                Console.WriteLine(e.StackTrace);
+            }
+            finally
+            {
+                if(fileStream != null)
+                {
+                    fileStream.Close();
+                }
             }
         }
 
 
         private void InitiateVideo(Video video)
         {
-            Console.WriteLine("InitiateVideo TODO!!!!!!!!");
-            //mediaPlayer.EndReached += ((sender, args) =>
-            //{
-            //    File.Delete("buffer.mp4");
-            //});
+            Console.WriteLine("Initiate Video!!!!!!!");
 
-            //mediaPlayer.Play(new Media(libvlc, "buffer.mp4", FromType.FromPath));
+            if(video.videoView.InvokeRequired)
+            {
+                video.videoView.Invoke(new Action(() =>
+                { 
+                    video.PlaySegment("buffer.mp4");
+                }));
+            }
+            else
+            {
+                video.PlaySegment("buffer.mp4");
+            }
+
+
         }
 
 

@@ -20,6 +20,8 @@ namespace Video_Share_Project
         public bool playing = false;
         public VideoView videoView;
         private Media currentMedia;
+        
+        private readonly Object locking = new object();
 
         public const int CHUNK_MAX_SIZE = 5 * 1024; //5KB
 
@@ -34,21 +36,38 @@ namespace Video_Share_Project
 
             mediaPlayer.EndReached += EndReached;
 
-            mediaPlayer.EncounteredError += (s, e) =>
+            mediaPlayer.EncounteredError += (sender, eventArgs) => //LibVLC parameters required for adding a function
             {
                 Console.WriteLine("VLC encountered an error!");
             };
-
-
-
 
             currentMedia = new Media(libvlc, "C:\\Users\\mdond\\Downloads\\zerotofive.mp4", FromType.FromPath);
             //mediaPlayer.Play(new Media(libvlc, new Uri("http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4")));
         }
 
-        public void PlayVideo()
+        public void PlayVideo(string path = null)
         {
-            mediaPlayer.Play(currentMedia);
+            if(path != null)
+            {
+                lock(locking)
+                {
+                    currentMedia = new Media(libvlc, path, FromType.FromPath);
+                    mediaPlayer.Media = currentMedia;
+                }
+            }
+
+            if(currentMedia != null)
+            {
+                Console.WriteLine("Playing segment...");
+                mediaPlayer.Play();
+                playing = true;
+            }
+            else
+            {
+                Console.WriteLine("No media loaded");
+            }
+
+                mediaPlayer.Play(currentMedia);
         }
 
         private void EndReached(object sender, EventArgs e)
@@ -58,43 +77,56 @@ namespace Video_Share_Project
             Console.WriteLine($"InvokeRequired in EndReached: {videoView.InvokeRequired}");
             if (videoView.InvokeRequired)
             {
-                videoView.Invoke(new Action(async () => await PlayNextSegment()));
+                videoView.Invoke(new Action(() => {
+                    Console.WriteLine("Got to an end of a segment");
+                }));
             }
 
         }
 
 
 
-        private async Task PlayNextSegment()
+        public void PlaySegment(string path)
         {
-            await Task.Run(() =>
+            EventHandler<System.EventArgs> handler = null; //The handler will be executed when EndReached event is being fired.
+            handler = (sender, e) =>
             {
-                Console.WriteLine("skib");
-                Console.WriteLine($"InvokeRequired in PlayNextSegment: {videoView.InvokeRequired}");
-                currentMedia = new Media(libvlc, "C:\\Users\\mdond\\Downloads\\fivetoten.mp4", FromType.FromPath);
-                try
-                {
-                    Console.WriteLine("dsa");
-                    mediaPlayer.Media = currentMedia;
-                    Console.WriteLine("sdf");
-                    mediaPlayer.Play(currentMedia);
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine(ex.Message);
-                }
-                Console.WriteLine("idi");
+                mediaPlayer.EndReached -= handler;
 
-            });
+                Task.Delay(500); //wait to ensure other processes finished using the segment
+                if(File.Exists(path))
+                {
+                    Console.WriteLine($"Deleting file {path}");
+                    File.Delete(path);
+                }
+            };
+            mediaPlayer.EndReached += handler;
+            //deleted the previous segment
+
+            lock(locking)
+            {
+                if(currentMedia != null)
+                {
+                    currentMedia.Dispose();
+                }
+                currentMedia = new Media(libvlc, path, FromType.FromPath);
+                mediaPlayer.Media = currentMedia;
+            }
+            Console.WriteLine("Changed current media");
+            mediaPlayer.Play();
+            playing = true;
         }
+
+
+
 
 
         //Segment is a few second part of the video.
         //Chunk will be sent in TCP, and is a part of the segment.
         //Chunk < Segment < Video
-        public static List<byte[]> CreateChunksFromSegment(string path) 
+        public static List<byte[]> CreateChunksFromSegment(string path)
         {
-            if(! File.Exists(path))
+            if (!File.Exists(path))
             {
                 throw new FileNotFoundException($"File {path} was not found");
             }
@@ -104,16 +136,16 @@ namespace Video_Share_Project
             using (FileStream stream = new FileStream(path, FileMode.Open, FileAccess.Read))
             {
                 long fileSize = stream.Length;
-                int numberOfChunks = (int) Math.Ceiling((double) fileSize / CHUNK_MAX_SIZE);
+                int numberOfChunks = (int)Math.Ceiling((double)fileSize / CHUNK_MAX_SIZE);
 
-                for(int i = 0; i < numberOfChunks; i++)
+                for (int i = 0; i < numberOfChunks; i++)
                 {
                     long currentChunkSize = Math.Min(CHUNK_MAX_SIZE, fileSize - stream.Position);
 
 
                     byte[] chunk = new byte[currentChunkSize];
 
-                    stream.Read(chunk, 0, (int) currentChunkSize);
+                    stream.Read(chunk, 0, (int)currentChunkSize);
 
                     chunks.Add(chunk);
                 }
@@ -121,5 +153,7 @@ namespace Video_Share_Project
 
             return chunks;
         }
+
+
     }
 }
