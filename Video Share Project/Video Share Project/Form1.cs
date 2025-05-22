@@ -11,8 +11,11 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using FFMpegCore;
 using LibVLCSharp.Shared;
-
+using FFMpegCore.Enums;
+using FFMpegCore.Arguments;
+using System.Diagnostics;
 
 namespace Video_Share_Project
 {
@@ -34,6 +37,27 @@ namespace Video_Share_Project
             Core.Initialize(); //initializes libVLC package
 
             video = new Video(videoView);
+
+            string ffmpegCommand =
+                "ffmpeg -i C:\\Users\\mdond\\Downloads\\sd.mp4 -t 5 -c:v libx264 -c:a aac -y testingfunc3.mp4";
+
+            Console.WriteLine("starting ffmpeg");
+            ProcessStartInfo psi = new ProcessStartInfo
+            {
+                FileName = "cmd.exe",
+                Arguments = "/c " + ffmpegCommand,
+                //RedirectStandardOutput = true,
+                //RedirectStandardError = true,
+                UseShellExecute = false,
+                CreateNoWindow = true
+            };
+
+            using (Process process = new Process { StartInfo = psi })
+            {
+                process.Start();
+
+            }
+            Console.WriteLine("finished ffmpeg");
 
         }
 

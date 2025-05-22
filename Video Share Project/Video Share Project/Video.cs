@@ -8,6 +8,9 @@ using LibVLCSharp.Shared;
 using LibVLCSharp.WinForms;
 using System.Runtime.InteropServices;
 using System.IO;
+using FFMpegCore;
+using FFMpegCore.Enums;
+using FFMpegCore.Pipes;
 
 namespace Video_Share_Project
 {
@@ -24,6 +27,10 @@ namespace Video_Share_Project
         private readonly Object locking = new object();
 
         public const int CHUNK_MAX_SIZE = 5 * 1024; //5KB
+
+        private Queue<byte[]> segmentQueue = new Queue<byte[]>();
+        private int numberOfSegments = 0;
+        private TimeSpan segmentLength = TimeSpan.FromSeconds(5);
 
         public Video(VideoView view)
         {
@@ -155,5 +162,32 @@ namespace Video_Share_Project
         }
 
 
+        public async Task CreateNextSegment(string path, int startTime) //start time in seconds
+        {
+            if(! File.Exists(path))
+            {
+                Console.WriteLine($"No such file {path}");
+                return;
+            }
+
+            try
+            {
+                //TODO: FIX THIS!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                //TimeSpan startSpan = TimeSpan.FromSeconds(startTime);
+                //FFMpegArguments
+                //    .FromFileInput(path, options => options.Seek(startSpan))
+                //    .OutputToFile($"segment_{numberOfSegments}.mp4", true, options =>   
+                //        .WithDuration(segmentLength)
+                //        .WithVideoCodec("copy") // Copy codec to avoid re-encoding
+                //        .WithAudioCodec("copy"))
+                //    .ProcessSynchronously();
+
+                //    numberOfSegments++;
+            }
+            catch (Exception e)
+            {
+
+            }
+        }
     }
 }

@@ -3,20 +3,20 @@
   "WorkspaceRootPath": "C:\\Users\\mdond\\VideoShareProject\\video-share-project\\Video Share Project\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{96150F98-9D49-4197-AA75-B2EB11A07844}|Video Share Project\\Video Share Project.csproj|c:\\users\\mdond\\videoshareproject\\video-share-project\\video share project\\video share project\\video.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{96150F98-9D49-4197-AA75-B2EB11A07844}|Video Share Project\\Video Share Project.csproj|solutionrelative:video share project\\video.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{96150F98-9D49-4197-AA75-B2EB11A07844}|Video Share Project\\Video Share Project.csproj|C:\\Users\\mdond\\VideoShareProject\\video-share-project\\Video Share Project\\video share project\\client.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{96150F98-9D49-4197-AA75-B2EB11A07844}|Video Share Project\\Video Share Project.csproj|solutionrelative:video share project\\client.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
       "AbsoluteMoniker": "D:0:0:{96150F98-9D49-4197-AA75-B2EB11A07844}|Video Share Project\\Video Share Project.csproj|C:\\Users\\mdond\\VideoShareProject\\video-share-project\\Video Share Project\\video share project\\form1.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{96150F98-9D49-4197-AA75-B2EB11A07844}|Video Share Project\\Video Share Project.csproj|solutionrelative:video share project\\form1.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
+      "AbsoluteMoniker": "D:0:0:{96150F98-9D49-4197-AA75-B2EB11A07844}|Video Share Project\\Video Share Project.csproj|c:\\users\\mdond\\videoshareproject\\video-share-project\\video share project\\video share project\\video.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{96150F98-9D49-4197-AA75-B2EB11A07844}|Video Share Project\\Video Share Project.csproj|solutionrelative:video share project\\video.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{96150F98-9D49-4197-AA75-B2EB11A07844}|Video Share Project\\Video Share Project.csproj|C:\\Users\\mdond\\VideoShareProject\\video-share-project\\Video Share Project\\video share project\\server.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{96150F98-9D49-4197-AA75-B2EB11A07844}|Video Share Project\\Video Share Project.csproj|solutionrelative:video share project\\server.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{96150F98-9D49-4197-AA75-B2EB11A07844}|Video Share Project\\Video Share Project.csproj|C:\\Users\\mdond\\VideoShareProject\\video-share-project\\Video Share Project\\video share project\\client.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{96150F98-9D49-4197-AA75-B2EB11A07844}|Video Share Project\\Video Share Project.csproj|solutionrelative:video share project\\client.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{96150F98-9D49-4197-AA75-B2EB11A07844}|Video Share Project\\Video Share Project.csproj|C:\\Users\\mdond\\VideoShareProject\\video-share-project\\Video Share Project\\video share project\\form1.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form",
@@ -34,11 +34,11 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 1,
+          "SelectedChildIndex": 3,
           "Children": [
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 3,
               "Title": "Client.cs",
               "DocumentMoniker": "C:\\Users\\mdond\\VideoShareProject\\video-share-project\\Video Share Project\\Video Share Project\\Client.cs",
               "RelativeDocumentMoniker": "Video Share Project\\Client.cs",
@@ -46,44 +46,47 @@
               "RelativeToolTip": "Video Share Project\\Client.cs",
               "ViewState": "AgIAABgAAAAAAAAAAIA6wCcAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-05-10T20:13:11.257Z"
+              "WhenOpened": "2025-05-10T20:13:11.257Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 0,
+              "DocumentIndex": 1,
               "Title": "Video.cs",
               "DocumentMoniker": "C:\\Users\\mdond\\VideoShareProject\\video-share-project\\Video Share Project\\Video Share Project\\Video.cs",
               "RelativeDocumentMoniker": "Video Share Project\\Video.cs",
               "ToolTip": "C:\\Users\\mdond\\VideoShareProject\\video-share-project\\Video Share Project\\Video Share Project\\Video.cs",
               "RelativeToolTip": "Video Share Project\\Video.cs",
-              "ViewState": "AgIAAFcAAAAAAAAAAAASwHEAAAANAAAAAAAAAA==",
+              "ViewState": "AgIAAGQAAAAAAAAAAAAkwBoAAAA3AAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-05-17T17:57:31.461Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 3,
+              "DocumentIndex": 2,
               "Title": "Server.cs",
               "DocumentMoniker": "C:\\Users\\mdond\\VideoShareProject\\video-share-project\\Video Share Project\\Video Share Project\\Server.cs",
               "RelativeDocumentMoniker": "Video Share Project\\Server.cs",
               "ToolTip": "C:\\Users\\mdond\\VideoShareProject\\video-share-project\\Video Share Project\\Video Share Project\\Server.cs",
               "RelativeToolTip": "Video Share Project\\Server.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAgwCEAAAAAAAAAAAAAAA==",
+              "ViewState": "AgIAAC4BAAAAAAAAAAAuwCEAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-05-06T14:25:20.382Z"
+              "WhenOpened": "2025-05-06T14:25:20.382Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 0,
               "Title": "Form1.cs",
               "DocumentMoniker": "C:\\Users\\mdond\\VideoShareProject\\video-share-project\\Video Share Project\\Video Share Project\\Form1.cs",
               "RelativeDocumentMoniker": "Video Share Project\\Form1.cs",
               "ToolTip": "C:\\Users\\mdond\\VideoShareProject\\video-share-project\\Video Share Project\\Video Share Project\\Form1.cs",
               "RelativeToolTip": "Video Share Project\\Form1.cs",
-              "ViewState": "AgIAAEIAAAAAAAAAAAAhwE8AAAA+AAAAAAAAAA==",
+              "ViewState": "AgIAAB8AAAAAAAAAAAAuwDwAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-05-06T14:28:35.434Z"
+              "WhenOpened": "2025-05-06T14:28:35.434Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -95,7 +98,8 @@
               "RelativeToolTip": "Video Share Project\\Messages.cs",
               "ViewState": "AgIAAA4AAAAAAAAAAAAQwCMAAAAlAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-05-10T20:00:37.055Z"
+              "WhenOpened": "2025-05-10T20:00:37.055Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -106,7 +110,8 @@
               "ToolTip": "C:\\Users\\mdond\\VideoShareProject\\video-share-project\\Video Share Project\\Video Share Project\\Form1.cs [Design]",
               "RelativeToolTip": "Video Share Project\\Form1.cs [Design]",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-05-14T18:15:46.947Z"
+              "WhenOpened": "2025-05-14T18:15:46.947Z",
+              "EditorCaption": " [Design]"
             }
           ]
         }
